@@ -2,9 +2,7 @@ package distribution
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
-	"runtime"
 
 	"github.com/docker/distribution"
 	"github.com/docker/distribution/manifest/schema2"
@@ -140,14 +138,6 @@ func (s *imageConfigStore) RootFSFromConfig(c []byte) (*image.RootFS, error) {
 	var unmarshalledConfig image.Image
 	if err := json.Unmarshal(c, &unmarshalledConfig); err != nil {
 		return nil, err
-	}
-
-	// fail immediately on Windows when downloading a non-Windows image
-	// and vice versa
-	if runtime.GOOS == "windows" && unmarshalledConfig.OS == "linux" {
-		return nil, fmt.Errorf("image operating system %q cannot be used on this platform", unmarshalledConfig.OS)
-	} else if runtime.GOOS != "windows" && unmarshalledConfig.OS == "windows" {
-		return nil, fmt.Errorf("image operating system %q cannot be used on this platform", unmarshalledConfig.OS)
 	}
 
 	return unmarshalledConfig.RootFS, nil
